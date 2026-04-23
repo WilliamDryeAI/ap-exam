@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1f3c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AP Gov">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <title>AP Gov Study</title>
+  <link rel="stylesheet" href="css/style.css?v=6">
+</head>
+<body>
+
+<!-- Top Bar -->
+<header id="topbar">
+  <div id="topbar-inner">
+    <div class="logo">⚖️ AP <span>Gov</span></div>
+    <div id="topbar-streak"><span>🔥</span><span id="stat-streak">0</span></div>
+    <div id="topbar-right">
+      <div id="topbar-level">Lv.<span id="stat-level">1</span></div>
+      <div id="xp-bar-wrap">
+        <div id="xp-next-label"><span id="stat-xp">0</span> / 300 XP</div>
+        <div id="xp-track"><div id="xp-bar"></div></div>
+      </div>
+      <button id="settings-btn" onclick="openSettings()" aria-label="Settings">⚙️</button>
+    </div>
+  </div>
+</header>
+
+<!-- Settings Modal -->
+<div id="settings-overlay" onclick="closeSettings()"></div>
+<div id="settings-modal">
+  <h3>Settings</h3>
+  <div class="settings-section">
+    <p class="settings-label">Reset by unit</p>
+    <div id="settings-unit-list"></div>
+  </div>
+  <div class="settings-divider"></div>
+  <button class="btn btn-full settings-reset-all" onclick="resetAll()">Reset All Progress</button>
+</div>
+
+<!-- Confirm Dialog -->
+<div id="confirm-overlay"></div>
+<div id="confirm-modal">
+  <p id="confirm-msg"></p>
+  <div class="confirm-actions">
+    <button class="btn btn-outline" onclick="confirmResolve(false)">Cancel</button>
+    <button class="btn btn-primary" id="confirm-ok" onclick="confirmResolve(true)">Confirm</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<!-- App -->
+<main id="app">
+
+  <!-- ── HOME ── -->
+  <div class="screen active" id="screen-home">
+    <div id="home-greeting">
+      <h1>Study <span>AP Gov</span> 🇺🇸</h1>
+    </div>
+    <p class="home-sub">Exam prep made interactive.</p>
+
+    <!-- Daily Challenge -->
+    <div class="daily-card" id="daily-btn" onclick="startDailyChallenge()">
+      <div class="badge daily-badge">Daily Challenge</div>
+      <h3>Today's 5 Questions</h3>
+      <p class="daily-sub">Complete for bonus XP + streak!</p>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="stat-row">
+      <div class="stat-card red"><div class="big" id="stat-correct">0</div><div class="lbl">Correct</div></div>
+      <div class="stat-card"><div class="big" id="stat-total">0</div><div class="lbl">Answered</div></div>
+      <div class="stat-card"><div class="big" id="stat-acc">0%</div><div class="lbl">Accuracy</div></div>
+    </div>
+
+    <!-- Quick Modes -->
+    <div class="section-title">Quick Start</div>
+    <div class="mode-grid">
+      <div class="mode-card" onclick="startFlashcards('scotus')">
+        <div class="mode-icon">🔨</div><h3>SCOTUS Cases</h3><p>All 15 required cases</p>
+      </div>
+      <div class="mode-card red" onclick="startQuizAll()">
+        <div class="mode-icon">🎯</div><h3>Full Quiz</h3><p>Random 10 questions</p>
+      </div>
+      <div class="mode-card" onclick="startFlashcards('documents')">
+        <div class="mode-icon">📋</div><h3>Documents</h3><p>9 foundational docs</p>
+      </div>
+      <div class="mode-card" onclick="renderMinigames()">
+        <div class="mode-icon">⚡</div><h3>Mini-Games</h3><p>Unlock at Level 2+</p>
+      </div>
+    </div>
+
+    <!-- Unit Progress -->
+    <div class="section-title">Unit Progress</div>
+    <div id="unit-progress-list" class="unit-list"></div>
+  </div>
+
+  <!-- ── STUDY SELECT ── -->
+  <div class="screen" id="screen-study">
+    <h2 id="study-mode-title">Choose a Unit</h2>
+    <p style="margin:0.3rem 0 1rem">Select a unit to study or quiz.</p>
+    <div id="study-select-list" class="select-grid"></div>
+  </div>
+
+  <!-- ── FLASHCARD ── -->
+  <div class="screen" id="screen-flashcard">
+    <div id="fc-header">
+      <button class="back-btn" onclick="renderStudySelect()">‹</button>
+      <h2 id="fc-unit-name">Flashcards</h2>
+      <span id="fc-progress-text"></span>
+    </div>
+    <div class="fc-stage" onclick="flipCard()">
+      <div class="fc-inner" id="fc-inner">
+        <div class="fc-face fc-front">
+          <div class="fc-cat" id="fc-front-topic"></div>
+          <h3 id="fc-front-text"></h3>
+          <div class="fc-hint">Tap to flip</div>
+        </div>
+        <div class="fc-face fc-back">
+          <pre class="fc-back-content" id="fc-back-content"></pre>
+        </div>
+      </div>
+    </div>
+    <div class="fc-nav">
+      <button class="btn btn-outline" onclick="fcPrev()">‹ Prev</button>
+      <button class="btn btn-ghost" onclick="fcShuffle()">🔀 Shuffle</button>
+      <button class="btn btn-primary" onclick="fcNext()">Next ›</button>
+    </div>
+    <div class="fc-dot-row" id="fc-dots"></div>
+  </div>
+
+  <!-- ── QUIZ ── -->
+  <div class="screen" id="screen-quiz">
+    <div id="quiz-header">
+      <div class="quiz-meta">
+        <span class="topic-tag" id="q-category-tag">SCOTUS</span>
+        <span class="q-counter" id="q-counter">1 / 10</span>
+      </div>
+      <div class="quiz-timer">
+        <span id="timer-secs">30s</span>
+        <div class="timer-bar-wrap"><div class="timer-bar" id="timer-bar"></div></div>
+      </div>
+    </div>
+    <div class="q-progress-row" id="q-pips"></div>
+    <div class="question-card">
+      <div class="q-difficulty" id="q-difficulty">Easy</div>
+      <div class="question-text" id="question-text"></div>
+    </div>
+    <div class="options-list" id="options-list"></div>
+    <div class="explanation-box" id="explanation-box"></div>
+    <button class="btn btn-primary btn-full mt2" id="quiz-next-btn" onclick="nextQuestion()" style="display:none">Next Question ›</button>
+  </div>
+
+  <!-- ── RESULTS ── -->
+  <div class="screen" id="screen-results">
+    <div class="card results-card">
+      <div style="font-size:2.5rem;margin-bottom:0.5rem">🎯</div>
+      <div class="results-score"><span id="res-score">0</span><span> / </span><span id="res-total">10</span></div>
+      <div class="results-label" id="res-pct"></div>
+      <div class="results-xp" id="res-xp"></div>
+      <div class="results-breakdown">
+        <div class="rb-item correct"><div class="rb-n" id="res-correct">0</div><div class="rb-l">Correct</div></div>
+        <div class="rb-item wrong"><div class="rb-n" id="res-wrong">0</div><div class="rb-l">Wrong</div></div>
+      </div>
+      <button class="btn btn-primary btn-full btn-lg" onclick="startQuizAll()">Play Again</button>
+      <button class="btn btn-outline btn-full mt1" onclick="showScreen('home'); renderHome()">Home</button>
+    </div>
+  </div>
+
+  <!-- ── MINI-GAMES ── -->
+  <div class="screen" id="screen-minigames">
+    <h2>🎮 Mini-Games</h2>
+    <p style="margin:0.3rem 0 1rem">Unlock games by leveling up.</p>
+    <div id="minigames-list" class="select-grid"></div>
+  </div>
+
+  <!-- ── STATS ── -->
+  <div class="screen" id="screen-stats">
+    <h2>📊 Your Stats</h2>
+    <div class="stats-grid" style="margin-top:0.75rem">
+      <div class="card card-sm text-center"><div class="stats-big" id="stats-total">0</div><div class="stats-lbl">Questions Answered</div></div>
+      <div class="card card-sm text-center"><div class="stats-big" id="stats-acc">0%</div><div class="stats-lbl">Accuracy</div></div>
+      <div class="card card-sm text-center"><div class="stats-big" id="stats-xp">0</div><div class="stats-lbl">Total XP</div></div>
+      <div class="card card-sm text-center"><div class="stats-big" id="stats-level">1</div><div class="stats-lbl">Level</div></div>
+      <div class="card card-sm text-center"><div class="stats-big" id="stats-streak">0</div><div class="stats-lbl">Day Streak</div></div>
+      <div class="card card-sm text-center"><div class="stats-big" id="stats-correct">0</div><div class="stats-lbl">Correct</div></div>
+    </div>
+    <div class="section-title">By Category</div>
+    <div class="card"><div id="cat-stats-list"></div></div>
+    <button class="btn btn-outline btn-full mt2" onclick="showConfirm('Reset all progress? This cannot be undone.',()=>{localStorage.clear();location.reload()})">Reset Progress</button>
+    <a href="admin.html" style="display:block;text-align:center;margin-top:1rem;font-size:0.8rem;color:var(--muted)">Admin Panel →</a>
+  </div>
+
+</main>
+
+<!-- Bottom Nav -->
+<nav id="botnav">
+  <button class="botnav-btn active" data-screen="home" onclick="showScreen('home'); renderHome()">
+    <span class="icon">🏠</span>Home
+  </button>
+  <button class="botnav-btn" data-screen="study" onclick="renderStudySelect()">
+    <span class="icon">📚</span>Study
+  </button>
+  <button class="botnav-btn" data-screen="minigames" onclick="renderMinigames()">
+    <span class="icon">🎮</span>Games
+  </button>
+  <button class="botnav-btn" data-screen="stats" onclick="renderStats()">
+    <span class="icon">📊</span>Stats
+  </button>
+</nav>
+
+<script src="js/app.js?v=7"></script>
+</body>
+</html>

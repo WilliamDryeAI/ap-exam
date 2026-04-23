@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AP Gov — Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<header>
+  <h1>⚖️ AP Gov — Admin Panel</h1>
+  <a href="index.html">← Back to App</a>
+</header>
+
+<!-- Login -->
+<div id="login-wrap">
+  <div class="login-card">
+    <h2>🔒 Admin Login</h2>
+    <p>Enter your admin password</p>
+    <input type="password" id="pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">Login</button>
+    <div class="err" id="login-err"></div>
+    <p style="margin-top:1rem;font-size:0.75rem;color:var(--muted)">Default password: apgov2025</p>
+  </div>
+</div>
+
+<!-- Admin Panel (hidden until login) -->
+<div id="admin-panel" style="display:none">
+<div id="main">
+
+  <div class="tabs">
+    <button class="tab active" onclick="setTab('questions')">Questions</button>
+    <button class="tab" onclick="setTab('flashcards')">Flashcards</button>
+    <button class="tab" onclick="setTab('settings')">Settings</button>
+  </div>
+
+  <!-- Questions Tab -->
+  <div id="tab-questions">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <h2>Question Bank</h2>
+        <button class="add-btn" onclick="openAddModal()">+ Add Question</button>
+      </div>
+      <div class="stats-row" id="q-stats-row"></div>
+      <div class="export-row">
+        <button class="export-row btn-export" onclick="exportQuestions()">⬇ Export JSON</button>
+        <button class="export-row btn-import" onclick="document.getElementById('import-file').click()">⬆ Import JSON</button>
+        <input type="file" id="import-file" accept=".json" style="display:none" onchange="importQuestions(this)">
+      </div>
+      <div class="search-row">
+        <input type="text" id="q-search" placeholder="Search questions…" oninput="renderTable()">
+        <select id="q-cat" onchange="renderTable()">
+          <option value="">All Categories</option>
+          <option value="scotus">SCOTUS</option>
+          <option value="documents">Documents</option>
+          <option value="unit1">Unit 1</option>
+          <option value="unit2">Unit 2</option>
+          <option value="unit3">Unit 3</option>
+          <option value="unit4">Unit 4</option>
+          <option value="unit5">Unit 5</option>
+          <option value="amendments">Amendments</option>
+          <option value="parties">Parties</option>
+          <option value="interest">Interest Groups</option>
+          <option value="elections">Elections</option>
+          <option value="media">Media</option>
+        </select>
+        <select id="q-diff" onchange="renderTable()">
+          <option value="">All Difficulty</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+        <select id="q-status" onchange="renderTable()">
+          <option value="">All Status</option>
+          <option value="active">Active</option>
+          <option value="flagged">Flagged</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto">
+        <table id="q-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Category</th>
+              <th>Topic</th>
+              <th>Question</th>
+              <th>Diff</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="q-tbody"></tbody>
+        </table>
+      </div>
+      <div id="q-pagination" style="text-align:center;margin-top:0.75rem;font-size:0.82rem;color:var(--muted)"></div>
+    </div>
+  </div>
+
+  <!-- Flashcards Tab -->
+  <div id="tab-flashcards" style="display:none">
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+        <h2>Flashcard Bank</h2>
+        <button class="add-btn" onclick="openAddFCModal()">+ Add Flashcard</button>
+      </div>
+      <div class="search-row">
+        <input type="text" id="fc-search" placeholder="Search flashcards…" oninput="renderFCTable()">
+        <select id="fc-cat" onchange="renderFCTable()">
+          <option value="">All Categories</option>
+          <option value="scotus">SCOTUS</option>
+          <option value="documents">Documents</option>
+          <option value="unit1">Unit 1</option>
+          <option value="unit2">Unit 2</option>
+          <option value="unit3">Unit 3</option>
+          <option value="unit4">Unit 4</option>
+          <option value="unit5">Unit 5</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>Category</th><th>Topic</th><th>Front</th><th>Actions</th></tr></thead>
+          <tbody id="fc-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings Tab -->
+  <div id="tab-settings" style="display:none">
+    <div class="panel">
+      <h2>Admin Settings</h2>
+      <div class="form-group">
+        <label>Change Admin Password</label>
+        <input type="password" id="new-pw" placeholder="New password">
+      </div>
+      <div class="form-group">
+        <input type="password" id="confirm-pw" placeholder="Confirm new password">
+      </div>
+      <button class="btn-save" onclick="changePW()">Save Password</button>
+    </div>
+    <div class="panel">
+      <h2>Student Progress</h2>
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem">View or reset student study data.</p>
+      <div id="student-stats"></div>
+      <button class="btn-cancel" style="margin-top:1rem" onclick="if(confirm('Reset all student progress?')){localStorage.removeItem('apgov_state');alert('Progress reset.')}">Reset Student Progress</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- Modal -->
+<div id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div id="modal">
+    <h3 id="modal-title">Add Question</h3>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn-save" onclick="saveQuestion()">Save</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<div id="admin-confirm-overlay" onclick="adminConfirmResolve(false)"></div>
+<div id="admin-confirm-modal">
+  <p id="admin-confirm-msg"></p>
+  <div class="confirm-actions">
+    <button class="btn-cancel" onclick="adminConfirmResolve(false)">Cancel</button>
+    <button class="btn-delete" onclick="adminConfirmResolve(true)">Delete</button>
+  </div>
+</div>
+
+<script src="js/admin.js"></script>
+</body>
+</html>

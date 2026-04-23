@@ -1,0 +1,16 @@
+{
+  "name": "AP Gov Study",
+  "short_name": "AP Gov",
+  "description": "Gamified AP US Government & Politics exam review",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1f3c",
+  "theme_color": "#1a1f3c",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["education"],
+  "screenshots": []
+}
