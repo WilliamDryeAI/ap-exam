@@ -1,4 +1,4 @@
-const CACHE = 'apgov-v2';
+const CACHE = 'apgov-v3';
 const ASSETS = ['/', '/index.html', '/admin.html', '/css/style.css', '/css/admin.css', '/js/app.js', '/js/admin.js', '/data/questions.json', '/data/flashcards.json'];
 
 self.addEventListener('install', e => {
